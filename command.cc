@@ -365,7 +365,7 @@ void Command::print()
         }
         printf("\n");
     }
-    }
+    
 
     printf("\n\n");
     printf("  Output       Input        Error        Err&Out       Background\n");
