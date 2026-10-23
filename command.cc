@@ -8,7 +8,7 @@
  * NOTE: You are responsible for fixing any bugs this code may have!
  *
  */
-
+#include <errno.h> //by me
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
