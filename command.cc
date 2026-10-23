@@ -117,7 +117,7 @@ void Command::insertSimpleCommand(SimpleCommand *simpleCommand)
 
 void Command::clear()
 {
-    for (int i = 0; i < _numberOfSimpleCommands; i++)
+    /*for (int i = 0; i < _numberOfSimpleCommands; i++)
     {
         for (int j = 0; j < _simpleCommands[i]->_numberOfArguments; j++)
         {
@@ -126,7 +126,16 @@ void Command::clear()
 
         free(_simpleCommands[i]->_arguments);
         free(_simpleCommands[i]);
-    }
+    }*/
+
+    //by me
+    for (int i = 0; i < _numberOfSimpleCommands; i++)
+        freeSimple(_simpleCommands[i]);
+
+    free(_simpleCommands);
+    _numberOfAvailableSimpleCommands = 1;
+    _simpleCommands = (SimpleCommand **)malloc(sizeof(SimpleCommand *));
+    //by me
 
     if (_outFile)
     {
@@ -147,7 +156,12 @@ void Command::clear()
     _outFile = 0;
     _inputFile = 0;
     _errFile = 0;
+    //by me
+    _out_error = 0;
+    _append = 0;
+    //by me
     _background = 0;
+    
 }
 
 void Command::print()
