@@ -114,19 +114,127 @@ static bool mergeQuotes(std::vector<Token> &tokens, std::vector<bool> &quoted)
 }
 //by me
 
+//by me
 void parse(std::vector<Token> &tokens)
 {
+    std::vector<bool> quoted;
+    if (!mergeQuotes(tokens, quoted))
+        return;
+
     Command currentCommand;
-    SimpleCommand *currentSimpleCommand = new SimpleCommand();
+    SimpleCommand *cur = new SimpleCommand();
+    bool afterPipe = false;
+
+    auto fail = [&](const std::string &msg)
+    {
+        fprintf(stderr, "myshell: syntax error: %s\n", msg.c_str());
+        currentCommand.clear();
+        freeSimple(cur);
+        cur = nullptr;
+    };
+
+    for (size_t i = 0; i < tokens.size(); i++)
+    {
+        Token &t = tokens[i];
+        switch (t.type)
+        {
+        case TOKEN_COMMAND:
+        case TOKEN_ARGUMENT:
+            addWord(cur, t, quoted[i]);
+            afterPipe = false;
+            break;
+
+        case TOKEN_PIPE:
+            if (cur->_numberOfArguments == 0)
+            {
+                fail("missing command before '|'");
+                return;
+            }
+            currentCommand.insertSimpleCommand(cur);
+            cur = new SimpleCommand();
+            afterPipe = true;
+            break;
+
+        case TOKEN_REDIRECT:
+        case TOKEN_APPEND:
+        case TOKEN_INPUT:
+        case TOKEN_ERROR:
+        case TOKEN_REDIRECT_AND_ERROR:
+        {
+            if (i + 1 >= tokens.size() || !isWord(tokens[i + 1]))
+            {
+                fail("missing file name after '" + t.value + "'");
+                return;
+            }
+            const char *file = tokens[i + 1].value.c_str();
+
+            if (t.type == TOKEN_INPUT)
+            {
+                if (currentCommand._inputFile) { fail("ambiguous input redirection"); return; }
+                currentCommand._inputFile = strdup(file);
+            }
+            else if (t.type == TOKEN_ERROR)
+            {
+                if (currentCommand._errFile) { fail("ambiguous error redirection"); return; }
+                currentCommand._errFile = strdup(file);
+            }
+            else
+            {
+                if (currentCommand._outFile) { fail("ambiguous output redirection"); return; }
+                currentCommand._outFile = strdup(file);
+                currentCommand._append = (t.type != TOKEN_REDIRECT);
+                if (t.type == TOKEN_REDIRECT_AND_ERROR)
+                {
+                    if (currentCommand._errFile) { fail("ambiguous error redirection"); return; }
+                    currentCommand._errFile = strdup(file);
+                    currentCommand._out_error = 1;
+                }
+            }
+            i++; // skip the file name token
+            break;
+        }
+
+        case TOKEN_BACKGROUND:
+            if (i + 1 >= tokens.size() || tokens[i + 1].type != TOKEN_EOF)
+            {
+                fail("'&' must be at the end of the command");
+                return;
+            }
+            currentCommand._background = 1;
+            break;
+
+        case TOKEN_EOF:
+            break;
+        }
+    }
+
+    if (cur->_numberOfArguments > 0)
+    {
+        currentCommand.insertSimpleCommand(cur);
+        cur = nullptr;
+    }
+    else if (afterPipe)
+    {
+        fail("missing command after '|'");
+        return;
+    }
+    else if (currentCommand._numberOfSimpleCommands == 0)
+    {
+        if (currentCommand._outFile || currentCommand._inputFile ||
+            currentCommand._errFile || currentCommand._background)
+            fail("missing command");
+        else
+        {
+            freeSimple(cur); // empty line
+            currentCommand.clear();
+        }
+        return;
+    }
+    freeSimple(cur);
 
     currentCommand.execute();
-    /*
-      Implement this function 
-      you must parse for all possible tokens scenario
-      right now command.execute only print the format , you will inject it in your logic.
-
-    */
 }
+//by me
 
 SimpleCommand::SimpleCommand()
 {
