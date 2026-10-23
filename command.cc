@@ -270,6 +270,7 @@ Command::Command()
     _inputFile = 0;
     _errFile = 0;
     _background = 0;*/
+
     //by me
     _numberOfAvailableSimpleCommands = 1;
     _numberOfSimpleCommands = 0;
@@ -362,6 +363,8 @@ void Command::print()
         {
             printf("\"%s\" \t", _simpleCommands[i]->_arguments[j]);
         }
+        printf("\n");
+    }
     }
 
     printf("\n\n");
