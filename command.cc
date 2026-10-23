@@ -39,6 +39,81 @@ static void freeSimple(SimpleCommand *sc)
 }
 //by me
 
+//by me
+static bool isWord(const Token &t)
+{
+    return t.type == TOKEN_COMMAND || t.type == TOKEN_ARGUMENT;
+}
+//by me
+
+//by me 
+static void addWord(SimpleCommand *sc, const Token &t, bool quoted)
+{
+    if (!quoted && t.value.find_first_of("*?") != std::string::npos)
+    {
+        glob_t g;
+        if (glob(t.value.c_str(), GLOB_NOCHECK, NULL, &g) == 0)
+        {
+            for (size_t k = 0; k < g.gl_pathc; k++)
+                sc->insertArgument(strdup(g.gl_pathv[k]));
+            globfree(&g);
+            return;
+        }
+    }
+    sc->insertArgument(strdup(t.value.c_str()));
+}//by me
+
+//by me
+static bool mergeQuotes(std::vector<Token> &tokens, std::vector<bool> &quoted)
+{
+    std::vector<Token> out;
+    quoted.clear();
+
+    for (size_t i = 0; i < tokens.size(); i++)
+    {
+        Token t = tokens[i];
+        if (t.type != TOKEN_EOF && !t.value.empty() &&
+            (t.value[0] == '"' || t.value[0] == '\''))
+        {
+            char q = t.value[0];
+            std::string text = t.value.substr(1);
+            bool closed = false;
+
+            while (true)
+            {
+                if (!text.empty() && text.back() == q)
+                {
+                    text.pop_back();
+                    closed = true;
+                    break;
+                }
+                if (i + 1 >= tokens.size() || tokens[i + 1].type == TOKEN_EOF)
+                    break;
+                i++;
+                text += " " + tokens[i].value;
+            }
+
+            if (!closed)
+            {
+                fprintf(stderr, "myshell: syntax error: unterminated quote\n");
+                return false;
+            }
+            if (t.type != TOKEN_COMMAND) t.type = TOKEN_ARGUMENT;
+            t.value = text;
+            out.push_back(t);
+            quoted.push_back(true);
+        }
+        else
+        {
+            out.push_back(t);
+            quoted.push_back(false);
+        }
+    }
+    tokens = out;
+    return true;
+}
+//by me
+
 void parse(std::vector<Token> &tokens)
 {
     Command currentCommand;
@@ -161,7 +236,7 @@ void Command::clear()
     _append = 0;
     //by me
     _background = 0;
-    
+
 }
 
 void Command::print()
