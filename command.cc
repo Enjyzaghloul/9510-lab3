@@ -27,7 +27,7 @@
 #include <sstream>
 #include "command.h"
 #include "tokenizer.h"
-
+//by me 
 static void freeSimple(SimpleCommand *sc)
 {
     if (!sc)
@@ -37,6 +37,7 @@ static void freeSimple(SimpleCommand *sc)
     free(sc->_arguments);
     delete sc;
 }
+//by me
 
 void parse(std::vector<Token> &tokens)
 {
@@ -57,6 +58,7 @@ SimpleCommand::SimpleCommand()
     _numberOfAvailableArguments = 5;
     _numberOfArguments = 0;
     _arguments = (char **)malloc(_numberOfAvailableArguments * sizeof(char *));
+    _arguments[0] = NULL;//by me
 }
 
 void SimpleCommand::insertArgument(char *argument)
@@ -76,7 +78,7 @@ void SimpleCommand::insertArgument(char *argument)
 
 Command::Command()
 {
-    _numberOfAvailableSimpleCommands = 1;
+   /* _numberOfAvailableSimpleCommands = 1;
     _simpleCommands = (SimpleCommand **)
         malloc(_numberOfSimpleCommands * sizeof(SimpleCommand *));
 
@@ -84,7 +86,20 @@ Command::Command()
     _outFile = 0;
     _inputFile = 0;
     _errFile = 0;
+    _background = 0;*/
+    //by me
+    _numberOfAvailableSimpleCommands = 1;
+    _numberOfSimpleCommands = 0;
+    _simpleCommands = (SimpleCommand **)
+        malloc(_numberOfAvailableSimpleCommands * sizeof(SimpleCommand *));
+
+    _outFile = 0;
+    _inputFile = 0;
+    _errFile = 0;
+    _out_error = 0;
+    _append = 0;
     _background = 0;
+    //by me
 }
 
 void Command::insertSimpleCommand(SimpleCommand *simpleCommand)
