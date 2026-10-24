@@ -1,0 +1,13 @@
+total 1008
+drwxrwxr-x 3 enjy enjy   4096 Oct 24 03:01 .
+drwxr-xr-x 6 enjy enjy   4096 Oct 23 22:06 ..
+drwxrwxr-x 7 enjy enjy   4096 Oct 24 01:47 .git
+-rw-rw-r-- 1 enjy enjy    485 Oct 24 00:23 Makefile
+-rw-rw-r-- 1 enjy enjy  14268 Oct 24 01:47 command.cc
+-rw-rw-r-- 1 enjy enjy    649 Oct 24  2025 command.h
+-rw-rw-r-- 1 enjy enjy 427000 Oct 24 02:59 command.o
+-rwxrwxr-x 1 enjy enjy 319880 Oct 24 02:59 myshell
+-rw-r--r-- 1 enjy enjy      0 Oct 24 03:01 out
+-rw-rw-r-- 1 enjy enjy   1954 Oct 24  2025 tokenizer.cc
+-rw-rw-r-- 1 enjy enjy    453 Oct 23 23:49 tokenizer.h
+-rw-rw-r-- 1 enjy enjy 232952 Oct 24 00:24 tokenizer.o

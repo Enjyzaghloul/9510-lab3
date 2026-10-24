@@ -438,6 +438,8 @@ void Command::execute()
 
         if (pid == 0)   //child process
         {
+            signal(SIGINT, SIG_DFL);    //closed by cntrl+c
+            signal(SIGCHLD, SIG_DFL);
             // input 
             if (prevRead != -1)
                 dup2(prevRead, 0);// pipe
