@@ -529,12 +529,16 @@ void Command::execute()
 
 void Command::prompt()
 {
-    printf("myshell>");
-    fflush(stdout);
     std::string input;
     while (true)
     {
-        std::getline(std::cin, input); 
+        printf("myshell>");
+        fflush(stdout);
+        if (!std::getline(std::cin, input))   // Ctrl-D
+        {
+            printf("\n");
+            break;
+        }
         std::vector<Token> tokens = tokenize(input);
         parse(tokens);
     }
