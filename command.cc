@@ -543,8 +543,41 @@ void Command::prompt()
 Command Command::_currentCommand;
 SimpleCommand *Command::_currentSimpleCommand;
 
+//signal handler for SIGCHLD to reap child processes and log their termination
+
+static int logFd = -1;   // log file descriptor
+
+static void childHandler(int)
+{
+    int saved = errno;
+    int status;
+    pid_t pid;
+    while ((pid = waitpid(-1, &status, WNOHANG)) > 0)
+    {
+        if (logFd >= 0)
+        {
+            char buf[100];
+            int len = snprintf(buf, sizeof(buf),
+                               "Child process %d terminated\n", (int)pid);
+            write(logFd, buf, len);
+        }
+    }
+    errno = saved;
+}
+
 int main()
 {
+    signal(SIGINT, SIG_IGN);    //ignore cntrl+c in parent
+
+    logFd = open("shell.log", O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = childHandler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART | SA_NOCLDSTOP;
+    sigaction(SIGCHLD, &sa, NULL);
+
     Command::_currentCommand.prompt();
     return 0;
 }
